@@ -13,15 +13,15 @@ config = {
     'BATCH_SIZE': 512,
     'EPOCHS': 100,
     'LOCAL_EPOCHS': 10,
-    'WEIGHT_DECAY': 5e-4,
-    'INITIAL_LR': 1e-4,
+    'WEIGHT_DECAY': 1e-5,
+    'INITIAL_LR': 3e-4,
     'CHECKPOINT_DIR': './runs',
     'N_PRED': 6,
     'N_HIST': 12,
     'DROPOUT': 0.2,
     # If false, use GCN paper weight matrix, if true, use GAT paper weight matrix
     'USE_GAT_WEIGHTS': True,
-    'N_NODE': 4,
+    'N_NODE': 5,
     'N_CLIENTS' : 3,
     'FRAC_CLIENTS': 1,
     'PRINT_EVERY': 5,
@@ -127,11 +127,11 @@ def personalized_train_ohio(config):
     global_weights = global_model.state_dict()
 
     # Training
-    train_loss, train_accuracy = [], []
-    val_accuracy, net_list = [], []
+    train_loss, train_mse = [], []
+    val_mse, net_list = [], []
     cv_loss, cv_acc = [], []
     val_loss_pre, counter = 0, 0
-    best_val_accuracy = -np.inf
+    best_val_mse = np.inf
 
     f = open(config['METRICS_FILENAME'],'w')
     f.close()
@@ -165,7 +165,7 @@ def personalized_train_ohio(config):
         f.close()
 
         # Calculate avg training accuracy over all users at every epoch
-        train_list_acc, val_list_acc = [], []
+        train_list_mse, val_list_mse = [], []
         global_model.eval()
         for client_id in range(config['N_CLIENTS']):
             train_dset, val_dset = split_dataset(train_data[client_id])
@@ -173,25 +173,25 @@ def personalized_train_ohio(config):
             val_dataloader = DataLoader(val_dset, batch_size=config['BATCH_SIZE'], shuffle=True, drop_last=True)
             train_rmse, _, _ = eval(global_model, device, train_dataloader)
             val_rmse, _, _ = eval(global_model, device, val_dataloader)
-            train_list_acc.append(train_rmse)
-            val_list_acc.append(val_rmse)
-        train_accuracy.append(sum(train_list_acc)/len(train_list_acc))
-        val_accuracy.append(sum(val_list_acc)/len(val_list_acc))
+            train_list_mse.append(train_rmse)
+            val_list_mse.append(val_rmse)
+        train_mse.append(sum(train_list_mse)/len(train_list_mse))
+        val_mse.append(sum(val_list_mse)/len(val_list_mse))
         f = open(config['METRICS_FILENAME'],'a')
-        f.write(f'Epoch,{epoch},TRAIN_RMSE,{train_accuracy[-1]}\n')
-        f.write(f'Epoch,{epoch},VAL_RMSE,{val_accuracy[-1]}\n')
+        f.write(f'Epoch,{epoch},TRAIN_RMSE,{train_mse[-1]}\n')
+        f.write(f'Epoch,{epoch},VAL_RMSE,{val_mse[-1]}\n')
         f.close()
 
         # print global training loss after every 'i' rounds
         if (epoch+1) % config['PRINT_EVERY'] == 0:
             print(f' \nAvg Training Stats after {epoch+1} global rounds:')
             print(f'Training Loss : {np.mean(np.array(train_loss))}')
-            print('Train RMSE: {:.2f}% \n'.format(train_accuracy[-1]))
-            print('Validation RMSE: {:.2f}% \n'.format(val_accuracy[-1]))
+            print('Train RMSE: {:.2f}% \n'.format(train_mse[-1]))
+            print('Validation RMSE: {:.2f}% \n'.format(val_mse[-1]))
 
         if (epoch+1) % config['SAVE_EVERY'] == 0:
-            if val_accuracy[-1] > best_val_accuracy:
-                best_val_accuracy = val_accuracy[-1]
+            if val_mse[-1] < best_val_mse:
+                best_val_mse = val_mse[-1]
                 torch.save(global_model.state_dict(), os.path.join(config['CHECKPOINT_DIR'],
                                                         f'model_{config["BATCH_SIZE"]}_{config["INITIAL_LR"]}_{config["WEIGHT_DECAY"]}.pth'))
                 print('Model Saved')

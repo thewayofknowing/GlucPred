@@ -20,10 +20,12 @@ class DataReader(object):
         basal = df['basal'].to_numpy(dtype=np.float32)
         bolus = df['bolus'].to_numpy(dtype=np.float32)
         carbs = df['carbInput'].to_numpy(dtype=np.float32)
+        gsr = df['gsr'].to_numpy(dtype=np.float32)
 
         bolus[np.isnan(bolus)] = 0.0
         basal[np.isnan(basal)] = 0.0
         carbs[np.isnan(carbs)] = 0.0
+        gsr[np.isnan(gsr)] = np.nanmean(gsr)
 
         # output = []
         # for i, row in df.iterrows():
@@ -37,7 +39,7 @@ class DataReader(object):
         #     #     output[-1].append(float(cbg1))
         #     # else:
         #     output.append(cbg1)
-        data = np.vstack((glucose, basal, bolus, carbs)).T
+        data = np.vstack((glucose, basal, bolus, carbs, gsr)).T
         assert not np.isnan(data).any()
         return data
     
