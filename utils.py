@@ -57,13 +57,16 @@ def eval(model, device, dataloader, type=''):
             if i == 0:
                 y_pred = torch.zeros(len(dataloader), pred.shape[0], pred.shape[1])
                 y_truth = torch.zeros(len(dataloader), pred.shape[0], pred.shape[1])
-            # truth = un_z_score(truth, dataloader.dataset.mean, dataloader.dataset.std_dev)
-            # pred = un_z_score(pred, dataloader.dataset.mean, dataloader.dataset.std_dev)
+                # print(dataloader.dataset.std_dev[0],dataloader.dataset.mean[0])
+                # print(pred[0], truth[0])
+                # print(pred[0]*dataloader.dataset.std_dev[0]+ dataloader.dataset.mean[0], truth[0]*dataloader.dataset.std_dev[0]+ dataloader.dataset.mean[0])
+            truth = un_z_score(truth, dataloader.dataset.mean[0], dataloader.dataset.std_dev[0])
+            pred = un_z_score(pred, dataloader.dataset.mean[0], dataloader.dataset.std_dev[0])
             y_pred[i, :pred.shape[0], :] = pred
             y_truth[i, :pred.shape[0], :] = truth
-            rmse += dataloader.dataset.mean[0]*RMSE(truth, pred) + dataloader.dataset.std_dev[0]
+            rmse += RMSE(truth, pred) 
             n += 1
     rmse = rmse / n 
-
+    print('RMSE:', rmse)
     #get the average score for each metric in each batch
     return rmse, y_pred, y_truth

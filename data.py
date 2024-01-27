@@ -85,9 +85,17 @@ class GlucoseDataset(InMemoryDataset):
         window = sampling_horizon + prediction_horizon
         
         # Edge Matrices
-        edge_index = torch.ones((2,3*n_nodes), dtype=torch.long)
-        edge_attr = torch.ones((3*n_nodes,1))
-        
+        edge_index = torch.zeros((2,2*(n_nodes-1)), dtype=torch.long)
+        edge_attr = torch.ones((2*(n_nodes-1),1))
+        num_edges = 0
+        for i in range(1,n_nodes):
+            edge_index[0, num_edges] = 0
+            edge_index[1, num_edges] = i
+            num_edges += 1
+            edge_index[0, num_edges] = i
+            edge_index[1, num_edges] = 0
+            num_edges += 1
+
         graphs = []
         shapes = set()
         for i in range(
