@@ -23,7 +23,8 @@ The model training happens with the [<code>train.py</code>](train.py) file.
 You can change the default behaviour by using the following arguments :
 
 * ```--clients:```        Number of Simulated Clients, Default: 3
-* ```--epochs:```         Number of rounds of training (Global). Default: 100
+* ```--epochs:```         Number of rounds of training (Global). Default: 50
+* ```--batch_size:```     Batch Size for training. Default: 512
 * ```--local_epochs:```   Number of rounds of training (Local Client). Default: 10
 * ```--lr:```             Learning rate, set to 0.005 by default.
 * ```--decay:```          Weight Decay, set to 0 by default
