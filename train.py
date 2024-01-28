@@ -11,14 +11,20 @@ import argparse
 
 # Constant config to use througout
 parser = argparse.ArgumentParser(description='Arguments for Training')
-parser.add_argument('--lr', type=float, default=1e-4, help='an integer for the accumulator')
-parser.add_argument('--decay', type=float, default=1e-6, help='an integer for the accumulator')
+parser.add_argument('--lr', type=float, default=5e-3, help='adam optimizer learning rate')
+parser.add_argument('--decay', type=float, default=0, help='adam optimizer weight decay')
+parser.add_argument('--clients', type=int, default=3, help='Number of clients to simulate')
+parser.add_argument('--epochs', type=int, default=100, help='Number of epochs (Global)')
+parser.add_argument('--local_epochs', type=int, default=10, help='Number of epochs (Local)')
+parser.add_argument('--batch_size', type=int, default=512, help='Batch size for parallelization')
+
+
 args = parser.parse_args()
 
 config = {
-    'BATCH_SIZE': 512,
-    'EPOCHS': 50,
-    'LOCAL_EPOCHS': 10,
+    'BATCH_SIZE': args.batch_size,
+    'EPOCHS': args.epochs,
+    'LOCAL_EPOCHS': args.local_epochs,
     'WEIGHT_DECAY': args.decay,
     'INITIAL_LR': args.lr,
     'CHECKPOINT_DIR': './runs',
@@ -28,7 +34,7 @@ config = {
     # If false, use GCN paper weight matrix, if true, use GAT paper weight matrix
     'USE_GAT_WEIGHTS': True,
     'N_NODE': 5,
-    'N_CLIENTS' : 3,
+    'N_CLIENTS' : args.clients,
     'FRAC_CLIENTS': 1,
     'PRINT_EVERY': 5,
     'SAVE_EVERY': 5,

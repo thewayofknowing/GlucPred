@@ -8,6 +8,7 @@ from utils import average_weights, eval, get_clients_splits
 import numpy as np
 import os
 import argparse
+import matplotlib.pyplot as plt
 
 # Constant config to use througout
 parser = argparse.ArgumentParser(description='Arguments for Testing')
@@ -25,6 +26,35 @@ config = {
     'N_CLIENTS': args.clients,
 }
 
+def plot_prediction(y_pred, y_truth, config):
+    sampling = 30
+    # Calculate the truth
+    s = y_truth.shape
+    y_truth = y_truth.reshape(s[0], config['BATCH_SIZE'], s[-1])
+    # just get the first prediction out for the nth node
+    y_truth = y_truth[:, :, 0]
+    # Flatten to get the predictions for entire test dataset
+    y_truth = torch.flatten(y_truth)
+    day0_truth = y_truth[:int(1440/sampling)]
+    # Calculate the predicted
+    s = y_pred.shape
+    y_pred = y_pred.reshape(s[0], config['BATCH_SIZE'], s[-1])
+    # just get the first prediction out for the nth node
+    y_pred = y_pred[:, :, 0]
+    # Flatten to get the predictions for entire test dataset
+    y_pred = torch.flatten(y_pred)
+    # Just grab the first day
+    day0_pred = y_pred[:int(1440/sampling)]
+    t = [t for t in range(0, 1440, sampling)]
+    plt.plot(t, day0_pred, label='ST-GAT')
+    plt.plot(t, day0_truth, label='truth', alpha=0.8)
+    plt.xlabel('Time (minutes)')
+    plt.ylabel('CBG prediction')
+    plt.title('Predictions of Blood Glucose over time')
+    plt.legend()
+    plt.savefig('predicted_times.png')
+    print('Figure Saved: predicted_times.png')
+
 def test(config):
     #¬ read in all patients data
     pid_all = [540, 552, 544, 567, 584, 596, 559, 563, 570, 588, 575, 591]
@@ -32,6 +62,7 @@ def test(config):
     # Simulate Clients
     dict_clients, pid_to_client = get_clients_splits(pid_all, config['N_CLIENTS'])
     train_data, test_data = {}, {}
+    print(f'Simulated {config["N_CLIENTS"]} Clients')
 
     # Load Data
     for client_id, pids in dict_clients.items():
@@ -74,6 +105,9 @@ def test(config):
             print(f'Client {client_id}, Test RMSE: {rmse}')
 
     print(f'Aggregate Test RMSE: {np.nanmean(test_rmse)}')
+    return y_pred, y_truth
 
 if __name__ == '__main__':
-     test(config)
+     y_pred, y_truth = test(config)
+     if args.plot:
+          plot_prediction(y_pred, y_truth, config)
