@@ -34,6 +34,7 @@ The selected model can be used to get test performance metrics and plot the pred
   python3 test.py --model runs/model_512_0.0003_1e-06.pth --plot 1
   ```
 It accepts the following arguments: 
+* ```--clients:```        Number of Simulated Clients, Default: 3
 * ```--model:```       Model file location (Required)
 * ```--plot:```        Whether to plot a sample prediction graph, Default: 0
 
