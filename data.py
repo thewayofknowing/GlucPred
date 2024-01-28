@@ -48,7 +48,8 @@ class GlucoseDataset(InMemoryDataset):
 
     @property
     def processed_file_names(self):
-        return [f'{self.client_id}_{self.tag}.pt']
+        return [f'{self.config["N_CLIENTS"]}_{self.client_id}_{self.tag}_' + 
+                f'{self.config["N_HIST"]}_{self.config["N_PRED"]}.pt']
 
     def load_data(self):
         dataset = None
@@ -58,13 +59,12 @@ class GlucoseDataset(InMemoryDataset):
                 dataset = data
             else:
                 dataset = np.vstack((dataset,data))
-        print('Dataset:', self.tag, 'Size:', len(dataset))
         return dataset
     
     def process(self):
         data = self.load_data()
         # Normalize Data
-        mean, std_dev = np.mean(data, axis=0), np.std(data, axis=0)
+        mean, std_dev = np.mean(data, axis=0), np.std(data+1e-6, axis=0)
         data = (data - mean) / std_dev
         
         n_timesteps = data.shape[0]

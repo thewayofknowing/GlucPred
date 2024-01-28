@@ -71,10 +71,9 @@ def local_update_weights(config, model, dataset, device='cpu'):
 
 def get_clients_splits(pids, n_clients=4):
     """
-    Sample I.I.D. client data from MNIST dataset
-    :param dataset:
+    Sample I.I.D. client data from Ohio dataset
     :param num_users:
-    :return: dict of image index
+    :return: dict of client->pid and pid->client
     """
     num_items = int(len(pids)/n_clients)
     dict_users, all_idxs = {}, list(pids)
@@ -94,7 +93,6 @@ def personalized_train_ohio(config):
     
     # Simulate Clients
     dict_clients, pid_to_client = get_clients_splits(pid_all, config['N_CLIENTS'])
-    print(dict_clients, pid_to_client)
     train_data, test_data = {}, {}
 
     # Load Data

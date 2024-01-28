@@ -1,5 +1,23 @@
 import torch
 import copy
+import numpy as np
+
+def get_clients_splits(pids, n_clients=4):
+    """
+    Sample I.I.D. client data from Ohio dataset
+    :param num_users:
+    :return: dict of client->pid and pid->client
+    """
+    num_items = int(len(pids)/n_clients)
+    dict_users, all_idxs = {}, list(pids)
+    pid_to_client = {}
+    for i in range(n_clients):
+        dict_users[i] = set(np.random.choice(all_idxs, num_items,
+                                             replace=False))
+        for pid in dict_users[i]:
+            pid_to_client[pid] = i
+        all_idxs = list(set(all_idxs) - dict_users[i])
+    return dict_users, pid_to_client
 
 def average_weights(w):
     """
