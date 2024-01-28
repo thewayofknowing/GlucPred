@@ -26,19 +26,7 @@ class DataReader(object):
         basal[np.isnan(basal)] = 0.0
         carbs[np.isnan(carbs)] = 0.0
         gsr[np.isnan(gsr)] = np.nanmean(gsr)
-
-        # output = []
-        # for i, row in df.iterrows():
-        #     # if i == 0:
-        #     #     continue
-        #     cbg1 = float(row['cbg'])
-        #     # t0 = datetime.fromtimestamp(df['5minute_intervals_timestamp'][i-1])
-        #     # t1 = datetime.fromtimestamp(row['5minute_intervals_timestamp'])
-        #     # delt = t1 - t0
-        #     # if delt <= self.interval_timedelta:
-        #     #     output[-1].append(float(cbg1))
-        #     # else:
-        #     output.append(cbg1)
+        
         data = np.vstack((glucose, basal, bolus, carbs, gsr)).T
         assert not np.isnan(data).any()
         return data

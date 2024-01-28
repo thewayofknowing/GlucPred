@@ -7,17 +7,23 @@ from tqdm import tqdm
 from utils import average_weights, eval
 import numpy as np
 import os
+import argparse
 
 # Constant config to use througout
+parser = argparse.ArgumentParser(description='Arguments for Training')
+parser.add_argument('--lr', type=float, default=1e-4, help='an integer for the accumulator')
+parser.add_argument('--decay', type=float, default=1e-6, help='an integer for the accumulator')
+args = parser.parse_args()
+
 config = {
     'BATCH_SIZE': 512,
-    'EPOCHS': 100,
+    'EPOCHS': 50,
     'LOCAL_EPOCHS': 10,
-    'WEIGHT_DECAY': 1e-6,
-    'INITIAL_LR': 5e-4,
+    'WEIGHT_DECAY': args.decay,
+    'INITIAL_LR': args.lr,
     'CHECKPOINT_DIR': './runs',
-    'N_PRED': 6,
-    'N_HIST': 12,
+    'N_PRED': 7,
+    'N_HIST': 13,
     'DROPOUT': 0.2,
     # If false, use GCN paper weight matrix, if true, use GAT paper weight matrix
     'USE_GAT_WEIGHTS': True,
@@ -26,7 +32,7 @@ config = {
     'FRAC_CLIENTS': 1,
     'PRINT_EVERY': 5,
     'SAVE_EVERY': 5,
-    'METRICS_FILENAME': 'metrics.csv'
+    'METRICS_FILENAME': f'metrics_{args.lr}_{args.decay}.csv'
 }
 
 def local_update_weights(config, model, dataset, device='cpu'):

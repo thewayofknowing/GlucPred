@@ -67,6 +67,5 @@ def eval(model, device, dataloader, type=''):
             rmse += RMSE(truth, pred) 
             n += 1
     rmse = rmse / n 
-    print('RMSE:', rmse)
     #get the average score for each metric in each batch
     return rmse, y_pred, y_truth

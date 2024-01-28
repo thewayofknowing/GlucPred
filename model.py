@@ -27,6 +27,7 @@ class ST_GAT(torch.nn.Module):
         self.n_pred = config['N_PRED']
         self.n_hist = config['N_HIST']
         lstm1_hidden_size = 32
+        lstm2_hidden_size = 96
 
         # single graph attentional layer with 8 attention heads
         self.gat = GATConv(in_channels=in_channels, out_channels=in_channels,
@@ -39,9 +40,15 @@ class ST_GAT(torch.nn.Module):
                 torch.nn.init.constant_(param, 0.0)
             elif 'weight' in name:
                 torch.nn.init.xavier_uniform_(param)
+        # self.lstm2 = torch.nn.LSTM(input_size=lstm1_hidden_size, hidden_size=lstm2_hidden_size, num_layers=1)
+        # for name, param in self.lstm1.named_parameters():
+        #     if 'bias' in name:
+        #         torch.nn.init.constant_(param, 0.0)
+        #     elif 'weight' in name:
+        #         torch.nn.init.xavier_uniform_(param)
 
         # fully-connected neural network
-        self.linear = torch.nn.Linear(lstm1_hidden_size, 1*self.n_pred) #Predict CBG for 6 timesteps
+        self.linear = torch.nn.Linear(lstm1_hidden_size, 1*self.n_pred) #Predict CBG for n_pred timesteps
         torch.nn.init.xavier_uniform_(self.linear.weight)
 
     def forward(self, data, device):
@@ -66,10 +73,12 @@ class ST_GAT(torch.nn.Module):
         # n_node = int(data.num_nodes/batch_size)
         x = torch.reshape(x, (self.batch_size, self.n_nodes, self.n_hist))
         # for lstm: x should be (seq_length, batch_size, n_nodes)
-        # sequence length = 12, batch_size = 32, n_node = 4
+        # sequence length = 12, batch_size = 32, n_node = 5
         x = torch.movedim(x, 2, 0)
-        # [12, 32, 4] -> [12, 32, 32]
+        # [12, batch, nodes] -> [12, batch, 32]
         x, _ = self.lstm1(x)
+        # (12, batch, 32) -> (12, batch, 96)
+        # x, _ = self.lstm2(x)
 
         # Output contains h_t for each timestep, only the last one has all input's accounted for
         # [12, 32, 32] -> [32, 32]
