@@ -39,6 +39,27 @@ It accepts the following arguments:
 * ```--model:```       Model file location (Required)
 * ```--plot:```        Whether to plot a sample prediction graph, Default: 0
 
+#### Folder Structure
+Model definition is provided in [<code>model.py</code>](model.py), the InMemoryDataset construction for PyTorch Geometry is provided in [<code>data.py</code>](data.py). Various mathematical and accessory functions are provided in [<code>utils.py</code>](utils.py)
+
+```
+├── data
+│ └── OhioAll_processed
+│       ├── test
+│       │    ├── 
+│       └── train
+│            ├── 
+├── data.py
+├── model.py
+├── processed
+    ├── 
+├── runs
+│  └── model_512_0.001_1e-05.pth
+├── test.py
+├── train.py
+└── utils.py
+```
+
 #### Credits
 Code snippets have been accumulated from the following repositories and credited for the same:
 * [Federated Learning (PyTorch)](https://github.com/AshwinRJ/Federated-Learning-PyTorch/tree/master)
